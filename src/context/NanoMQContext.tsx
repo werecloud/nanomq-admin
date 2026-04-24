@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useLayoutEffect, useCallback, ReactNode } from 'react';
 import { nanomqAPI, BrokerInfo, NodeInfo, ClientInfo, SubscriptionInfo, MetricsInfo } from '@/api/nanomq';
 import { useAuth } from './AuthContext';
 
@@ -48,8 +48,8 @@ export const NanoMQProvider: React.FC<NanoMQProviderProps> = ({ children }) => {
   const [subscriptions, setSubscriptions] = useState<SubscriptionInfo[]>([]);
   const [metrics, setMetrics] = useState<MetricsInfo | null>(null);
 
-  // 当认证状态或配置变化时，更新 API 配置
-  useEffect(() => {
+  // 必须在子组件任何 useEffect 发起请求之前同步凭证（子 effect 先于父 effect 执行）
+  useLayoutEffect(() => {
     if (isAuthenticated && config) {
       nanomqAPI.setAuthConfig(config);
     } else {

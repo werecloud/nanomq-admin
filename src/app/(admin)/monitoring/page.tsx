@@ -69,7 +69,7 @@ const normalizeMetrics = (raw: unknown): SystemMetrics => {
 };
 
 const MonitorPage: React.FC = () => {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, config } = useAuth();
   const { connectionStatus } = useNanoMQ();
   const router = useRouter();
   const [isMonitoring, setIsMonitoring] = useState(true);
@@ -92,14 +92,15 @@ const MonitorPage: React.FC = () => {
     }
   }, [isAuthenticated, authLoading, router]);
 
-  // 获取系统指标
+  // 获取系统指标（刷新后子组件 effect 可能早于 NanoMQProvider 的 setAuthConfig，需在此同步凭证）
   const fetchMetrics = useCallback(async () => {
-    if (!isAuthenticated) return;
-    
+    if (!isAuthenticated || !config?.baseURL || !config.username) return;
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
+      nanomqAPI.setAuthConfig(config);
       const rawData = await nanomqAPI.getMetrics();
       const data = normalizeMetrics(rawData);
       setMetrics(data);
@@ -132,18 +133,26 @@ const MonitorPage: React.FC = () => {
       
     } catch (error) {
       console.error('Failed to fetch metrics:', error);
-      setError(error instanceof Error ? error.message : '获取系统指标失败');
+      const status =
+        error && typeof error === 'object' && 'response' in error
+          ? (error as { response?: { status?: number } }).response?.status
+          : undefined;
+      if (status === 401) {
+        setError('认证失败（401），请重新登录或检查 NanoMQ HTTP 账号密码');
+      } else {
+        setError(error instanceof Error ? error.message : '获取系统指标失败');
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, config]);
 
-  // 启动/停止监控
+  // 启动/停止监控（等 Auth 恢复完成且 config 就绪，避免无凭证请求 401）
   useEffect(() => {
-    if (isMonitoring && isAuthenticated) {
+    if (isMonitoring && isAuthenticated && !authLoading && config?.baseURL) {
       // 立即获取一次数据
       fetchMetrics();
-      
+
       // 设置定时器
       intervalRef.current = setInterval(fetchMetrics, refreshInterval);
     } else {
@@ -158,7 +167,7 @@ const MonitorPage: React.FC = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isMonitoring, refreshInterval, isAuthenticated, fetchMetrics]);
+  }, [isMonitoring, refreshInterval, isAuthenticated, authLoading, config?.baseURL, fetchMetrics]);
 
   if (authLoading) {
     return (
