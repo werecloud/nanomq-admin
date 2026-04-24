@@ -42,6 +42,32 @@ interface SystemMetrics {
   uptime: number;
 }
 
+const toSafeNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value.trim());
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return fallback;
+};
+
+const normalizeMetrics = (raw: unknown): SystemMetrics => {
+  const data = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const memoryTotal = Math.max(toSafeNumber(data.memory_total, 0), 1);
+  return {
+    cpu_usage: toSafeNumber(data.cpu_usage, 0),
+    memory_usage: toSafeNumber(data.memory_usage, 0),
+    memory_total: memoryTotal,
+    connections_count: toSafeNumber(data.connections_count, 0),
+    subscriptions_count: toSafeNumber(data.subscriptions_count, 0),
+    messages_received: toSafeNumber(data.messages_received, 0),
+    messages_sent: toSafeNumber(data.messages_sent, 0),
+    bytes_received: toSafeNumber(data.bytes_received, 0),
+    bytes_sent: toSafeNumber(data.bytes_sent, 0),
+    uptime: toSafeNumber(data.uptime, 0),
+  };
+};
+
 const MonitorPage: React.FC = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { connectionStatus } = useNanoMQ();
@@ -74,7 +100,8 @@ const MonitorPage: React.FC = () => {
     setError(null);
     
     try {
-      const data = await nanomqAPI.getMetrics() as SystemMetrics;
+      const rawData = await nanomqAPI.getMetrics();
+      const data = normalizeMetrics(rawData);
       setMetrics(data);
       
       // 更新历史数据
@@ -212,7 +239,8 @@ const MonitorPage: React.FC = () => {
             stroke={color}
             strokeWidth="2"
             points={data.map((point, index) => {
-              const x = (index / (data.length - 1)) * 100;
+              const denominator = Math.max(data.length - 1, 1);
+              const x = (index / denominator) * 100;
               const y = 100 - ((point.value - minValue) / range) * 100;
               return `${x},${y}`;
             }).join(' ')}
