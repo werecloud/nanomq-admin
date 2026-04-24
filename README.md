@@ -76,7 +76,7 @@ pnpm start
 ### 环境变量
 创建 `.env.local` 文件来配置环境变量：
 ```env
-NEXT_PUBLIC_NANOMQ_API_URL=http://localhost:8081
+NANOMQ_API_URL=http://localhost:8081
 ```
 
 ## 项目结构

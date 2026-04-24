@@ -30,7 +30,7 @@ const SignInPage: React.FC = () => {
   useEffect(() => {
     const initializeForm = () => {
       setFormData({
-        baseURL: process.env.NEXT_PUBLIC_NANOMQ_API_URL || 'http://localhost:8081',
+        baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
         username: process.env.NEXT_PUBLIC_NANOMQ_USERNAME || '',
         password: process.env.NEXT_PUBLIC_NANOMQ_PASSWORD || '',
       });

@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [config, setConfig] = useState<AuthConfig>({
-    baseURL: process.env.NEXT_PUBLIC_NANOMQ_API_URL || 'http://localhost:8081',
+    baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
     username: process.env.NEXT_PUBLIC_NANOMQ_USERNAME || 'admin',
     password: process.env.NEXT_PUBLIC_NANOMQ_PASSWORD || 'public',
   });
@@ -212,7 +212,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('nanomq-config');
     setIsAuthenticated(false);
     setConfig({
-      baseURL: process.env.NEXT_PUBLIC_NANOMQ_API_URL || 'http://localhost:8081',
+      baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
       username: process.env.NEXT_PUBLIC_NANOMQ_USERNAME || 'admin',
       password: process.env.NEXT_PUBLIC_NANOMQ_PASSWORD || 'public',
     });
