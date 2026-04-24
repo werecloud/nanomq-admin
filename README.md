@@ -1,136 +1,185 @@
 # NanoMQ Admin Panel
 
-一个基于 Next.js App Router 的 NanoMQ 管理面板，覆盖 Broker 监控、客户端与订阅管理、消息发布、规则/桥接管理、访问控制与配置操作。
+一个功能完善、界面美观的 NanoMQ MQTT Broker 管理面板，基于 Next.js 14 和 Tailwind CSS v4 构建。
 
-## 功能概览
+## 功能特性
 
-- 仪表板：运行状态、关键指标总览
-- 客户端管理：连接客户端查询
-- 订阅管理：主题订阅查询
-- 消息发布：支持 `publish` 与批量参数
-- 实时监控 / 统计分析：基于真实 API 数据
-- 系统配置：`/reload` 热更新与 `config_update` 文件更新
-- 访问控制：`nanomq_pwd.conf` / `nanomq_acl.conf` 可视化编辑
-- 规则引擎：Rules CRUD
-- 桥接管理：Bridge 查看与更新
+### 🚀 核心功能
+- **实时监控**: 实时显示 NanoMQ 的运行状态和性能指标
+- **客户端管理**: 查看和管理所有连接的 MQTT 客户端
+- **订阅管理**: 监控和管理所有活跃的主题订阅
+- **统计分析**: 详细的性能统计和数据可视化
+- **系统配置**: 完整的 NanoMQ 配置管理界面
+
+### 🎨 界面特性
+- **现代化设计**: 基于 Tailwind CSS v4 的现代化 UI 设计
+- **响应式布局**: 完美适配桌面端和移动端
+- **深色模式**: 支持明暗主题切换
+- **直观导航**: 清晰的侧边栏导航和面包屑导航
+
+### 📊 监控面板
+- **连接状态**: 实时显示在线/离线客户端数量
+- **消息统计**: 消息接收、发送、丢弃等统计信息
+- **性能指标**: CPU、内存使用率和网络流量监控
+- **系统信息**: 运行时间、版本信息等系统状态
 
 ## 技术栈
 
-- Next.js 15
-- React 19 + TypeScript
-- Tailwind CSS v4
-- Axios
-- Lucide React
+- **前端框架**: Next.js 14 (App Router)
+- **样式框架**: Tailwind CSS v4
+- **UI 组件**: 自定义组件库
+- **图标库**: Lucide React
+- **HTTP 客户端**: Axios
+- **包管理器**: pnpm
+- **开发语言**: TypeScript
 
 ## 快速开始
 
-### 1) 安装依赖
+### 环境要求
+- Node.js 18.0 或更高版本
+- pnpm 8.0 或更高版本
 
+### 安装依赖
 ```bash
-npm install
+pnpm install
 ```
 
-### 2) 配置环境变量
+### 启动开发服务器
+```bash
+pnpm dev
+```
 
-在项目根目录创建 `.env.local`（或 `.env`）：
+访问 [http://localhost:3000](http://localhost:3000) 查看应用。
 
+### 构建生产版本
+```bash
+pnpm build
+```
+
+### 启动生产服务器
+```bash
+pnpm start
+```
+
+## 配置说明
+
+### NanoMQ API 配置
+在使用前，请确保：
+1. NanoMQ 服务正在运行
+2. HTTP API 已启用
+3. 在应用中配置正确的 NanoMQ API 地址
+
+默认配置：
+- API 地址: `http://localhost:8081`
+- 端口: 8081
+
+### 环境变量
+创建 `.env.local` 文件来配置环境变量：
 ```env
-NANOMQ_API_URL=http://localhost:8081
-NANOMQ_USERNAME=admin
-NANOMQ_PASSWORD=public
+NEXT_PUBLIC_NANOMQ_API_URL=http://localhost:8081
 ```
 
-> 页面登录后会把连接配置存储到本地；代理层请求会带 `x-nanomq-auth` 透传认证。
+## 项目结构
 
-### 3) 开发运行
-
-```bash
-npm run dev
 ```
-
-访问：`http://localhost:3000`
-
-### 4) 构建生产
-
-```bash
-npm run build
-npm run start
-```
-
-## Docker 运行
-
-项目根目录已提供 `Dockerfile`（多阶段构建）：
-
-```bash
-docker build -t nanomq-admin:latest .
-docker run --rm -p 3000:3000 nanomq-admin:latest
-```
-
-## 关键目录
-
-```text
 src/
-  app/
-    (admin)/
-      access/          # 访问控制（pwd/acl 文件管理）
-      bridges/         # 桥接管理
-      clients/         # 客户端
-      configuration/   # 配置管理
-      monitoring/      # 实时监控
-      publish/         # 消息发布
-      rules/           # 规则引擎
-      statistics/      # 统计分析
-      subscriptions/   # 订阅管理
-    api/nanomq/        # Next 代理层，转发到 /api/v4/*
-  api/
-    nanomq.ts          # NanoMQ 前端 API 客户端
-    access.ts          # pwd/acl 配置序列化与解析
-  layout/
-    NanoMQSidebar.tsx  # 左侧导航
+├── app/                    # Next.js App Router 页面
+│   ├── (admin)/           # 管理面板页面
+│   │   ├── clients/       # 客户端管理
+│   │   ├── subscriptions/ # 订阅管理
+│   │   ├── statistics/    # 统计分析
+│   │   └── configuration/ # 系统配置
+│   └── layout.tsx         # 根布局
+├── components/            # 可复用组件
+├── context/              # React Context
+│   └── NanoMQContext.tsx # NanoMQ 状态管理
+├── lib/                  # 工具库
+│   └── nanomq-api.ts     # NanoMQ API 客户端
+└── layout/               # 布局组件
+    ├── NanoMQSidebar.tsx # 侧边栏导航
+    └── AppHeader.tsx     # 顶部导航
 ```
 
-## 与 NanoMQ API 的关系
+## API 集成
 
-本项目通过 Next API 代理访问 NanoMQ v4 接口：
+本项目集成了 NanoMQ 的 HTTP API，支持以下功能：
 
-- 代理入口：`/api/nanomq/*`
-- 上游入口：`<NANOMQ_API_URL>/api/v4/*`
+- **Broker 信息**: `/api/v4/brokers`
+- **节点信息**: `/api/v4/nodes`
+- **客户端列表**: `/api/v4/clients`
+- **订阅列表**: `/api/v4/subscriptions`
+- **统计指标**: `/api/v4/metrics`
+- **系统控制**: `/api/v4/ctrl/*`
 
-常用上游接口：
+## 功能模块
 
-- `GET /brokers`、`GET /nodes`
-- `GET /clients`、`GET /subscriptions`
-- `POST /mqtt/publish`
-- `GET/POST /reload`
-- `POST /ctrl/restart`
-- `POST /write_file`、`GET /get_file`
-- `POST /config_update`
+### 1. 仪表板 (Dashboard)
+- 系统概览和关键指标
+- 连接状态实时监控
+- 快速操作面板
+- 最近活动日志
 
-## 访问控制说明（重要）
+### 2. 客户端管理 (Clients)
+- 客户端列表和详细信息
+- 连接状态监控
+- 协议类型统计
+- 客户端搜索和过滤
 
-### 推荐流程
+### 3. 订阅管理 (Subscriptions)
+- 活跃订阅列表
+- QoS 级别统计
+- 通配符订阅监控
+- 主题分析
 
-对于 `nanomq_pwd.conf` / `nanomq_acl.conf`：
+### 4. 统计分析 (Statistics)
+- 消息吞吐量统计
+- 网络流量分析
+- 性能指标图表
+- 历史数据趋势
 
-1. 先 `write_file` 写入文件
-2. 再触发重启（或按你当前部署策略使配置重载）
+### 5. 系统配置 (Configuration)
+- Broker 基础配置
+- 安全设置 (SSL/TLS)
+- WebSocket 配置
+- 日志设置
+- 性能调优参数
 
-### 已知注意事项
+## 开发指南
 
-- `config_update` 是**整文件替换**主配置，不是增量 patch。
-- 直接提交片段（例如只有 `auth { ... }`）可能导致 Broker 启动异常。
-- 某些 NanoMQ 版本在 `auth include` 动态应用路径上存在兼容差异；页面已做了降噪与保护。
+### 添加新页面
+1. 在 `src/app/(admin)/` 下创建新目录
+2. 添加 `page.tsx` 文件
+3. 在 `NanoMQSidebar.tsx` 中添加导航项
 
-## CI/CD 说明
+### 自定义主题
+修改 `tailwind.config.js` 来自定义主题颜色和样式。
 
-仓库含 `.github/workflows/deploy.yaml`。若用于镜像发布，请确保：
+### API 扩展
+在 `src/lib/nanomq-api.ts` 中添加新的 API 方法。
 
-- 存在可用 `Dockerfile`
-- 镜像 tag 与仓库 owner 一致
-- 登录凭据（PAT 或 `GITHUB_TOKEN`）权限完整
+## 贡献指南
 
-## 开发建议
+1. Fork 本仓库
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开 Pull Request
 
-- 新增管理页：在 `src/app/(admin)/<module>/page.tsx` 添加页面并更新 `NanoMQSidebar.tsx`
-- 新增 API：优先在 `src/api/nanomq.ts` 增加方法，再由页面调用
-- 涉及配置文件写入时，优先走 `write_file`，慎用 `config_update`
+## 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 支持
+
+如果您在使用过程中遇到问题，请：
+1. 查看 [Issues](../../issues) 页面
+2. 创建新的 Issue 描述问题
+3. 提供详细的错误信息和复现步骤
+
+## 更新日志
+
+### v1.0.0
+- 初始版本发布
+- 完整的 NanoMQ 管理功能
+- 现代化的 UI 设计
+- 响应式布局支持
