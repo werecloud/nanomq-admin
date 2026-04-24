@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNanoMQ } from '@/context/NanoMQContext';
-import { nanomqAPI } from '@/api/nanomq';
+import { nanomqAPI, type NodeInfo } from '@/api/nanomq';
 import { useRouter } from 'next/navigation';
 import {
   Activity,
@@ -51,21 +51,171 @@ const toSafeNumber = (value: unknown, fallback = 0): number => {
   return fallback;
 };
 
+/** NanoMQ v4 `/metrics` 常见字段：`cpuinfo`、`memory`、`connections`；也可能包在 `{ code, data }` 里 */
+const parseCpuinfoPercent = (cpuinfo: unknown): number => {
+  if (typeof cpuinfo === 'number' && Number.isFinite(cpuinfo)) return cpuinfo;
+  if (typeof cpuinfo !== 'string') return 0;
+  const n = Number(cpuinfo.trim().replace(/%/g, ''));
+  return Number.isFinite(n) ? n : 0;
+};
+
+const unwrapMetricsPayload = (raw: unknown): Record<string, unknown> => {
+  if (!raw || typeof raw !== 'object') return {};
+  const o = raw as Record<string, unknown>;
+  if ('data' in o && o.data !== null && typeof o.data === 'object' && !Array.isArray(o.data)) {
+    return o.data as Record<string, unknown>;
+  }
+  return o;
+};
+
 const normalizeMetrics = (raw: unknown): SystemMetrics => {
-  const data = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-  const memoryTotal = Math.max(toSafeNumber(data.memory_total, 0), 1);
+  const data = unwrapMetricsPayload(raw);
+
+  const cpuFromCpuinfo = parseCpuinfoPercent(data.cpuinfo);
+  const cpuUsage = toSafeNumber(data.cpu_usage, cpuFromCpuinfo);
+
+  const memUsage = toSafeNumber(
+    data.memory_usage !== undefined ? data.memory_usage : data.memory,
+    0
+  );
+  const memTotalRaw = toSafeNumber(data.memory_total, 0);
+  const memoryTotal =
+    memTotalRaw > 0 ? Math.max(memTotalRaw, memUsage, 1) : Math.max(memUsage, 1);
+
+  const connections = toSafeNumber(
+    data.connections_count !== undefined ? data.connections_count : data.connections,
+    0
+  );
+
+  const subs = toSafeNumber(
+    data.subscriptions_count !== undefined ? data.subscriptions_count : data.subscribers,
+    0
+  );
+
   return {
-    cpu_usage: toSafeNumber(data.cpu_usage, 0),
-    memory_usage: toSafeNumber(data.memory_usage, 0),
+    cpu_usage: cpuUsage,
+    memory_usage: memUsage,
     memory_total: memoryTotal,
-    connections_count: toSafeNumber(data.connections_count, 0),
-    subscriptions_count: toSafeNumber(data.subscriptions_count, 0),
+    connections_count: connections,
+    subscriptions_count: subs,
     messages_received: toSafeNumber(data.messages_received, 0),
     messages_sent: toSafeNumber(data.messages_sent, 0),
     bytes_received: toSafeNumber(data.bytes_received, 0),
     bytes_sent: toSafeNumber(data.bytes_sent, 0),
     uptime: toSafeNumber(data.uptime, 0),
   };
+};
+
+const parseNumberField = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value !== 'string') return null;
+  const n = Number(value.trim());
+  return Number.isFinite(n) ? n : null;
+};
+
+/** 解析 NanoMQ `/nodes` 返回的 uptime 字符串，例如 `1 hours 2 minutes 3 seconds` */
+const parseUptimeToSeconds = (uptime: unknown): number | null => {
+  if (typeof uptime === 'number' && Number.isFinite(uptime)) return uptime;
+  if (typeof uptime !== 'string') return null;
+  const s = uptime.toLowerCase();
+  const h = s.match(/(\d+)\s*hours?/);
+  const m = s.match(/(\d+)\s*minutes?/);
+  const sec = s.match(/(\d+)\s*seconds?/);
+  const hours = h ? Number(h[1]) : 0;
+  const minutes = m ? Number(m[1]) : 0;
+  const seconds = sec ? Number(sec[1]) : 0;
+  if (![hours, minutes, seconds].every(Number.isFinite)) return null;
+  return hours * 3600 + minutes * 60 + seconds;
+};
+
+/** 解析 `/prometheus` 文本行：`metric_name{labels} value` 或 `metric_name value` */
+const parsePrometheusText = (text: string): Record<string, number> => {
+  const out: Record<string, number> = {};
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const lastSpace = trimmed.lastIndexOf(' ');
+    if (lastSpace <= 0) continue;
+    const metricPart = trimmed.slice(0, lastSpace).trim();
+    const valueStr = trimmed.slice(lastSpace + 1).trim().split(/\s+/)[0];
+    const n = Number(valueStr);
+    if (!Number.isFinite(n)) continue;
+    const baseName = metricPart.includes('{') ? metricPart.slice(0, metricPart.indexOf('{')) : metricPart;
+    out[baseName] = n;
+  }
+  return out;
+};
+
+const pickBytesFromPrometheus = (p: Record<string, number>): { rx: number | null; tx: number | null } => {
+  const tryKeys = (keys: string[]): number | null => {
+    for (const k of keys) {
+      if (Number.isFinite(p[k])) return p[k];
+    }
+    return null;
+  };
+  let rx = tryKeys(['nanomq_bytes_received', 'nanomq_recv_bytes', 'nanomq_network_bytes_received']);
+  let tx = tryKeys(['nanomq_bytes_sent', 'nanomq_sent_bytes', 'nanomq_network_bytes_sent']);
+  if (rx === null && tx === null) {
+    for (const [k, v] of Object.entries(p)) {
+      if (!Number.isFinite(v)) continue;
+      const kl = k.toLowerCase();
+      if (!kl.includes('byte')) continue;
+      if (kl.includes('recv') || kl.includes('receiv') || kl.includes('inbound')) rx = rx === null ? v : Math.max(rx, v);
+      else if (kl.includes('sent') || kl.includes('transmit') || kl.includes('outbound'))
+        tx = tx === null ? v : Math.max(tx, v);
+    }
+  }
+  return { rx, tx };
+};
+
+/** 合并 `/metrics` + `/prometheus` + `/nodes` + 订阅列表，与后端 metrics 代理逻辑对齐 */
+const enrichMetricsFromApis = (
+  base: SystemMetrics,
+  promText: string | null | undefined,
+  nodes: NodeInfo[] | null | undefined,
+  subscriptionCount: number
+): SystemMetrics => {
+  const out = { ...base };
+
+  if (typeof promText === 'string' && promText.length > 0) {
+    const p = parsePrometheusText(promText);
+    if (Number.isFinite(p.nanomq_cpu_usage)) out.cpu_usage = p.nanomq_cpu_usage;
+    if (Number.isFinite(p.nanomq_memory_usage)) out.memory_usage = p.nanomq_memory_usage;
+    if (Number.isFinite(p.nanomq_memory_usage_max) && p.nanomq_memory_usage_max > 0) {
+      out.memory_total = Math.max(p.nanomq_memory_usage_max, out.memory_usage, 1);
+    }
+    if (Number.isFinite(p.nanomq_connections_count)) out.connections_count = p.nanomq_connections_count;
+    if (Number.isFinite(p.nanomq_subscribers_count)) {
+      out.subscriptions_count = Math.max(p.nanomq_subscribers_count, subscriptionCount);
+    } else if (subscriptionCount > 0) {
+      out.subscriptions_count = subscriptionCount;
+    }
+    if (Number.isFinite(p.nanomq_messages_received)) out.messages_received = p.nanomq_messages_received;
+    if (Number.isFinite(p.nanomq_messages_sent)) out.messages_sent = p.nanomq_messages_sent;
+    const { rx, tx } = pickBytesFromPrometheus(p);
+    if (rx !== null) out.bytes_received = rx;
+    if (tx !== null) out.bytes_sent = tx;
+  } else if (subscriptionCount > 0) {
+    out.subscriptions_count = Math.max(out.subscriptions_count, subscriptionCount);
+  }
+
+  if (nodes && nodes.length > 0) {
+    const n0 = nodes[0] as unknown as Record<string, unknown>;
+    const uptimeSec = parseUptimeToSeconds(n0.uptime);
+    if (uptimeSec !== null && uptimeSec >= 0) out.uptime = uptimeSec;
+    const conns = parseNumberField(n0.connections);
+    if (conns !== null && out.connections_count === 0) out.connections_count = conns;
+  }
+
+  if (!Number.isFinite(out.memory_total) || out.memory_total <= 0) {
+    out.memory_total = Math.max(out.memory_usage, 1);
+  } else if (out.memory_total < out.memory_usage) {
+    out.memory_total = Math.max(out.memory_usage, 1);
+  }
+
+  out.subscriptions_count = Math.max(out.subscriptions_count, subscriptionCount);
+
+  return out;
 };
 
 const MonitorPage: React.FC = () => {
@@ -101,8 +251,15 @@ const MonitorPage: React.FC = () => {
 
     try {
       nanomqAPI.setAuthConfig(config);
-      const rawData = await nanomqAPI.getMetrics();
-      const data = normalizeMetrics(rawData);
+      const [metricsRaw, promText, nodesList, subscriptionsList] = await Promise.all([
+        nanomqAPI.getMetrics(),
+        nanomqAPI.getPrometheusMetrics().catch(() => ''),
+        nanomqAPI.getNodeInfo().catch(() => []),
+        nanomqAPI.getSubscriptions().catch(() => []),
+      ]);
+      const base = normalizeMetrics(metricsRaw);
+      const promStr = typeof promText === 'string' ? promText : '';
+      const data = enrichMetricsFromApis(base, promStr, nodesList, subscriptionsList.length);
       setMetrics(data);
       
       // 更新历史数据
