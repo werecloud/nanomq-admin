@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useNanoMQ } from '@/context/NanoMQContext';
+import { parseUptimeToSeconds } from '@/api/metrics';
 import {
   BarChart3,
   TrendingUp,
@@ -49,9 +50,12 @@ const StatisticsPage: React.FC = () => {
         received: Number(metrics.bytes_received) || 0,
         sent: Number(metrics.bytes_sent) || 0,
       },
-      // 系统统计
+      // 系统统计（合并后的 metrics.uptime 为秒；否则解析节点 uptime 字符串）
       system: {
-        uptime: metrics.uptime || nodeInfo?.uptime || 0,
+        uptime:
+          typeof metrics.uptime === 'number' && metrics.uptime > 0
+            ? metrics.uptime
+            : (parseUptimeToSeconds(nodeInfo?.uptime) ?? 0),
         version: nodeInfo?.version || 'Unknown',
       },
     };
@@ -70,16 +74,16 @@ const StatisticsPage: React.FC = () => {
   };
 
   const formatUptime = (uptime: string | number | undefined) => {
-    // 处理不同格式的运行时间数据
     let seconds = 0;
-    
+
     if (typeof uptime === 'number') {
       seconds = uptime;
     } else if (typeof uptime === 'string') {
-      // 尝试解析字符串格式的运行时间
-      const parsed = parseInt(uptime);
-      if (!isNaN(parsed)) {
-        seconds = parsed;
+      const fromHuman = parseUptimeToSeconds(uptime);
+      if (fromHuman !== null) seconds = fromHuman;
+      else {
+        const parsed = parseInt(uptime, 10);
+        if (!Number.isNaN(parsed)) seconds = parsed;
       }
     }
     

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useLayoutEffect, useCallback, ReactNode } from 'react';
 import { nanomqAPI, BrokerInfo, NodeInfo, ClientInfo, SubscriptionInfo, MetricsInfo } from '@/api/nanomq';
+import { mergeNanoMqMetricsSnapshot } from '@/api/metrics';
 import { useAuth } from './AuthContext';
 
 interface NanoMQContextType {
@@ -124,12 +125,24 @@ export const NanoMQProvider: React.FC<NanoMQProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // 刷新统计信息
+  // 刷新统计信息（合并 /metrics + /prometheus + /nodes + 订阅数，与监控页一致）
   const refreshMetrics = useCallback(async () => {
     try {
-      const data = await nanomqAPI.getMetrics();
+      if (isAuthenticated && config) nanomqAPI.setAuthConfig(config);
+      const [metricsRaw, promText, nodesList, subs] = await Promise.all([
+        nanomqAPI.getMetrics(),
+        nanomqAPI.getPrometheusMetrics().catch(() => ''),
+        nanomqAPI.getNodeInfo().catch(() => []),
+        nanomqAPI.getSubscriptions().catch(() => []),
+      ]);
+      const promStr = typeof promText === 'string' ? promText : '';
+      const data = mergeNanoMqMetricsSnapshot({
+        metricsRaw,
+        promText: promStr,
+        nodes: nodesList,
+        subscriptionCount: subs.length,
+      });
       setMetrics(data);
-      // 如果成功获取数据，更新连接状态
       if (!isConnected) {
         setIsConnected(true);
         setConnectionStatus('connected');
@@ -137,13 +150,12 @@ export const NanoMQProvider: React.FC<NanoMQProviderProps> = ({ children }) => {
       }
     } catch (err) {
       console.error('Failed to fetch metrics:', err);
-      // 如果获取数据失败，可能是连接问题
       setIsConnected(false);
       setConnectionStatus('disconnected');
       const errorMessage = err instanceof Error ? err.message : '获取统计信息失败';
       setError(errorMessage);
     }
-  }, [isConnected]);
+  }, [isConnected, isAuthenticated, config]);
 
   // 刷新所有数据
   const refreshData = useCallback(async () => {
