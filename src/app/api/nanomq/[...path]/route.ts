@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { NANOMQ_API_URL } from '@/config/nanomq-env';
 
 // 从请求头或本地存储获取认证信息的辅助函数
 function getAuthConfig(request: NextRequest) {
@@ -16,7 +17,7 @@ function getAuthConfig(request: NextRequest) {
   
   // 使用环境变量作为默认配置
   return {
-    baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
+    baseURL: NANOMQ_API_URL,
     username: process.env.NANOMQ_USERNAME || 'admin',
     password: process.env.NANOMQ_PASSWORD || 'public',
   };

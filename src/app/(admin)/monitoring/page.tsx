@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNanoMQ } from '@/context/NanoMQContext';
+import { nanomqAPI } from '@/api/nanomq';
 import { useRouter } from 'next/navigation';
 import {
   Activity,
@@ -42,7 +43,7 @@ interface SystemMetrics {
 }
 
 const MonitorPage: React.FC = () => {
-  const { isAuthenticated, isLoading: authLoading, config } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { connectionStatus } = useNanoMQ();
   const router = useRouter();
   const [isMonitoring, setIsMonitoring] = useState(true);
@@ -73,26 +74,7 @@ const MonitorPage: React.FC = () => {
     setError(null);
     
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      // 添加认证信息
-      if (config) {
-        headers['x-nanomq-auth'] = JSON.stringify(config);
-      }
-      
-      const response = await fetch('/api/nanomq/metrics', {
-        method: 'GET',
-        headers,
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data: SystemMetrics = await response.json();
+      const data = await nanomqAPI.getMetrics() as SystemMetrics;
       setMetrics(data);
       
       // 更新历史数据
@@ -127,7 +109,7 @@ const MonitorPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, config]);
+  }, [isAuthenticated]);
 
   // 启动/停止监控
   useEffect(() => {

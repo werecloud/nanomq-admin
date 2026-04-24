@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { NANOMQ_API_URL } from '@/config/nanomq-env';
 
 interface AuthConfig {
   baseURL: string;
@@ -35,12 +36,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [config, setConfig] = useState<AuthConfig>({
-    baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
+    baseURL: NANOMQ_API_URL,
     username: process.env.NEXT_PUBLIC_NANOMQ_USERNAME || 'admin',
     password: process.env.NEXT_PUBLIC_NANOMQ_PASSWORD || 'public',
   });
   
   const router = useRouter();
+
+  const verifyConnection = async (auth: AuthConfig): Promise<Response> => {
+    const normalizedBaseURL = auth.baseURL.replace(/\/+$/, '');
+    const basicToken = btoa(`${auth.username}:${auth.password}`);
+    return fetch(`${normalizedBaseURL}/api/v4/brokers`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${basicToken}`,
+      },
+    });
+  };
 
   // 初始化时检查本地存储的认证信息
   useEffect(() => {
@@ -62,13 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (hoursDiff < 24) {
               // 验证保存的认证信息是否仍然有效
               try {
-                const response = await fetch('/api/nanomq/test-connection', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(configData),
-                });
+                const response = await verifyConnection(configData);
                 
                 if (response.ok) {
                   setIsAuthenticated(true);
@@ -130,16 +137,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
       
       // 测试连接到 NanoMQ API
-      const response = await fetch('/api/nanomq/test-connection', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          baseURL: apiURL,
-          username,
-          password,
-        }),
+      const response = await verifyConnection({
+        baseURL: apiURL,
+        username,
+        password,
       });
       
       if (response.ok) {
@@ -212,7 +213,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('nanomq-config');
     setIsAuthenticated(false);
     setConfig({
-      baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
+      baseURL: NANOMQ_API_URL,
       username: process.env.NEXT_PUBLIC_NANOMQ_USERNAME || 'admin',
       password: process.env.NEXT_PUBLIC_NANOMQ_PASSWORD || 'public',
     });

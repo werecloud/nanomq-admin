@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { NANOMQ_API_URL } from '@/config/nanomq-env';
 
 interface PublishRequest {
   topic?: string;
@@ -25,7 +26,7 @@ function getAuthConfig(request: NextRequest) {
   
   // 回退到环境变量
   return {
-    baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
+    baseURL: NANOMQ_API_URL,
     username: process.env.NANOMQ_USERNAME || 'admin',
     password: process.env.NANOMQ_PASSWORD || 'public'
   };

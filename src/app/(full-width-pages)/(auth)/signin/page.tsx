@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { NANOMQ_API_URL } from '@/config/nanomq-env';
 import { Eye, EyeOff, Wifi, AlertCircle, Loader2, Server, User, Lock } from 'lucide-react';
 import AuthLoading from '@/components/auth/AuthLoading';
 
@@ -30,7 +31,7 @@ const SignInPage: React.FC = () => {
   useEffect(() => {
     const initializeForm = () => {
       setFormData({
-        baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
+        baseURL: NANOMQ_API_URL,
         username: process.env.NEXT_PUBLIC_NANOMQ_USERNAME || '',
         password: process.env.NEXT_PUBLIC_NANOMQ_PASSWORD || '',
       });

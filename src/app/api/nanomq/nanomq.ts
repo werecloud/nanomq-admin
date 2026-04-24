@@ -1,6 +1,7 @@
 'use client';
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { NANOMQ_PROXY_BASE_PATH } from '@/config/nanomq-api';
 
 // API 响应类型定义
 export interface ApiResponse<T = unknown> {
@@ -161,8 +162,8 @@ class NanoMQAPI {
   private authConfig: { baseURL: string; username: string; password: string } | null = null;
 
   constructor() {
-    // 使用 Next.js API 路由作为代理
-    this.baseURL = '/api/nanomq';
+    // 通过环境变量统一代理路径，默认 /api/nanomq
+    this.baseURL = NANOMQ_PROXY_BASE_PATH;
 
     this.client = axios.create({
       baseURL: this.baseURL,

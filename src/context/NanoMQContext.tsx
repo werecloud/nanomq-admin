@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { nanomqAPI, BrokerInfo, NodeInfo, ClientInfo, SubscriptionInfo, MetricsInfo } from '@/app/api/nanomq/nanomq';
+import { nanomqAPI, BrokerInfo, NodeInfo, ClientInfo, SubscriptionInfo, MetricsInfo } from '@/api/nanomq';
 import { useAuth } from './AuthContext';
 
 interface NanoMQContextType {

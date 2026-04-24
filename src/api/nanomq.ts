@@ -1,6 +1,7 @@
 'use client';
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { NANOMQ_API_URL } from '@/config/nanomq-env';
 
 // API 响应类型定义
 export interface ApiResponse<T = unknown> {
@@ -160,9 +161,26 @@ class NanoMQAPI {
   private baseURL: string;
   private authConfig: { baseURL: string; username: string; password: string } | null = null;
 
+  private static normalizeBaseURL(url: string): string {
+    return url.replace(/\/+$/, '');
+  }
+
+  private static createApiV4BaseURL(url: string): string {
+    return `${NanoMQAPI.normalizeBaseURL(url)}/api/v4`;
+  }
+
+  private applyClientConfig(config?: { baseURL: string; username: string; password: string } | null) {
+    const resolved = config || this.authConfig;
+    const targetBaseURL = NanoMQAPI.createApiV4BaseURL(resolved?.baseURL || NANOMQ_API_URL);
+
+    this.client.defaults.baseURL = targetBaseURL;
+    this.client.defaults.auth = resolved
+      ? { username: resolved.username, password: resolved.password }
+      : undefined;
+  }
+
   constructor() {
-    // 使用 Next.js API 路由作为代理
-    this.baseURL = '/api/nanomq';
+    this.baseURL = NanoMQAPI.createApiV4BaseURL(NANOMQ_API_URL);
 
     this.client = axios.create({
       baseURL: this.baseURL,
@@ -177,11 +195,6 @@ class NanoMQAPI {
       (config) => {
         if (process.env.NODE_ENV !== 'production') {
           console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
-        }
-        
-        // 添加认证信息到请求头
-        if (this.authConfig) {
-          config.headers['x-nanomq-auth'] = JSON.stringify(this.authConfig);
         }
         
         return config;
@@ -210,11 +223,13 @@ class NanoMQAPI {
   // 设置认证配置
   setAuthConfig(config: { baseURL: string; username: string; password: string }) {
     this.authConfig = config;
+    this.applyClientConfig(config);
   }
 
   // 清除认证配置
   clearAuthConfig() {
     this.authConfig = null;
+    this.applyClientConfig(null);
   }
 
   // 测试连接

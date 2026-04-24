@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { nanomqAPI } from '@/api/nanomq';
 import { useRouter } from 'next/navigation';
 import {
   Send,
@@ -101,35 +102,27 @@ const PublishPage: React.FC = () => {
         }
       }
 
-      const response = await fetch('/api/nanomq/publish', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...(hasTopic ? { topic: message.topic } : {}),
-          ...(hasTopics ? { topics: message.topics } : {}),
-          ...(message.clientid.trim() ? { clientid: message.clientid } : {}),
-          payload: message.payload,
-          encoding: message.encoding,
-          qos: message.qos,
-          retain: message.retain,
-          ...(properties ? { properties } : {}),
-        }),
+      const response = await nanomqAPI.publishMessage({
+        ...(hasTopic ? { topic: message.topic } : {}),
+        ...(hasTopics ? { topics: message.topics } : {}),
+        ...(message.clientid.trim() ? { clientid: message.clientid } : {}),
+        payload: message.payload,
+        encoding: message.encoding,
+        qos: message.qos,
+        retain: message.retain,
+        ...(properties ? { properties: properties as Record<string, unknown> } : {}),
       });
-
-      const data = await response.json();
       
       const result: PublishResult = {
-        success: response.ok,
-        message: response.ok ? '消息发布成功' : data.error || '发布失败',
+        success: response?.code === 0,
+        message: response?.code === 0 ? '消息发布成功' : '发布失败',
         timestamp: new Date(),
       };
       
       setPublishResults(prev => [result, ...prev]);
       
       // 如果发布成功，清空表单
-      if (response.ok) {
+      if (response?.code === 0) {
         setMessage({
           topic: '',
           topics: '',

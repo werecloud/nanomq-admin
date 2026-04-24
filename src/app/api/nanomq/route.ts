@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { NANOMQ_API_URL } from '@/config/nanomq-env';
 
 function getAuthConfig(request: NextRequest) {
   const authHeader = request.headers.get('x-nanomq-auth');
@@ -12,7 +13,7 @@ function getAuthConfig(request: NextRequest) {
   }
 
   return {
-    baseURL: process.env.NANOMQ_API_URL || 'http://localhost:8081',
+    baseURL: NANOMQ_API_URL,
     username: process.env.NANOMQ_USERNAME || '',
     password: process.env.NANOMQ_PASSWORD || '',
   };
