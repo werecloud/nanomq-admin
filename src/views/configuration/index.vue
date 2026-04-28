@@ -33,11 +33,11 @@
           :title="t('nanomq.configuration.configUpdate')"
         >
           <a-space direction="vertical" fill :size="16">
-            <a-alert type="warning" show-icon>
+            <!-- <a-alert type="warning" show-icon>
               <template #title>POST /api/v4/config_update</template>
               HOCON text is submitted directly to NanoMQ. Please verify before
               saving.
-            </a-alert>
+            </a-alert> -->
             <a-textarea
               v-model="hoconText"
               :auto-size="{ minRows: 16, maxRows: 28 }"
