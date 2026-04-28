@@ -117,7 +117,6 @@ export default {
   'nanomq.configuration.fillMain': 'Fill Main Config',
   'nanomq.configuration.submitConfig': 'Submit Config Update',
   'nanomq.access.title': 'Users and ACL',
-  'nanomq.access.readBroker': 'Read From Broker',
   'nanomq.access.users': 'Users (nanomq_pwd.conf)',
   'nanomq.access.addUser': 'Add User',
   'nanomq.access.saveUsers': 'Save Users',

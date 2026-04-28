@@ -10,7 +10,7 @@
           @click="loadFromBroker(true)"
         >
           <template #icon><icon-refresh /></template>
-          {{ t('nanomq.access.readBroker') }}
+          {{ t('nanomq.common.refresh') }}
         </a-button>
       </template>
     </PageHeader>

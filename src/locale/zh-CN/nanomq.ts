@@ -115,7 +115,6 @@ export default {
   'nanomq.configuration.fillMain': '回填当前主配置',
   'nanomq.configuration.submitConfig': '提交配置文件更新',
   'nanomq.access.title': '用户与 ACL 权限控制',
-  'nanomq.access.readBroker': '从 Broker 读取',
   'nanomq.access.users': '用户（nanomq_pwd.conf）',
   'nanomq.access.addUser': '添加用户',
   'nanomq.access.saveUsers': '保存用户',
