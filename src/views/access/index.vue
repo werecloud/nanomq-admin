@@ -175,10 +175,7 @@
   const allowAnonymous = false;
   const noMatch: 'allow' | 'deny' = 'deny';
   const denyAction: 'ignore' | 'disconnect' = 'ignore';
-  const pwdRows = ref<PwdRow[]>([
-    { rowKey: uniqueId(), username: 'admin', password: 'public' },
-    { rowKey: uniqueId(), username: 'client', password: 'public' },
-  ]);
+  const pwdRows = ref<PwdRow[]>([]);
   const aclRows = ref<AclRow[]>([
     {
       rowKey: uniqueId(),
