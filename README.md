@@ -135,8 +135,6 @@ The Dockerfile expects this build argument:
 VITE_NANOMQ_API_URL
 ```
 
-To bake the default API URL into the production image, make sure `.github/workflows/deploy.yml` maps the repository variable to the Dockerfile argument:
-
 ```yaml
 build-args: |
   VITE_NANOMQ_API_URL=${{ vars.NANOMQ_API_URL }}

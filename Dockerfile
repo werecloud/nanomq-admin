@@ -2,8 +2,6 @@ FROM node:18-alpine
 
 LABEL project="Werecloud ioT NanoMQ Dashboard"
 
-ARG VITE_NANOMQ_API_URL="http://localhost:8081"
-
 ENV NODE_OPTIONS=--max-old-space-size=8192
 
 WORKDIR /www
