@@ -8,4 +8,7 @@ declare module '*.vue' {
 }
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string;
+  readonly VITE_NANOMQ_API_URL?: string;
+  readonly VITE_NANOMQ_USERNAME?: string;
+  readonly VITE_NANOMQ_PASSWORD?: string;
 }

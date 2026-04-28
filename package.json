@@ -1,15 +1,16 @@
 {
-  "name": "arco-design-pro-vue",
-  "description": "Arco Design Pro for Vue",
+  "name": "werecloud-iot",
+  "description": "Werecloud ioT Platform",
   "version": "1.0.0",
   "private": true,
-  "author": "ArcoDesign Team",
+  "author": "Werecloud Team",
   "license": "MIT",
   "scripts": {
     "dev": "vite --config ./config/vite.config.dev.ts",
     "build": "vue-tsc --noEmit && vite build --config ./config/vite.config.prod.ts",
     "report": "cross-env REPORT=true npm run build",
     "preview": "npm run build && vite preview --host",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck",
     "type:check": "vue-tsc --noEmit --skipLibCheck",
     "lint-staged": "npx lint-staged",
     "prepare": "husky install"
@@ -53,6 +54,7 @@
     "@commitlint/config-conventional": "^17.1.0",
     "@types/lodash": "^4.14.186",
     "@types/mockjs": "^1.0.7",
+    "@types/node": "^25.6.0",
     "@types/nprogress": "^0.2.0",
     "@types/sortablejs": "^1.15.0",
     "@typescript-eslint/eslint-plugin": "^5.40.0",

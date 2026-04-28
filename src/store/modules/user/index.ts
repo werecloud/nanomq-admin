@@ -9,6 +9,7 @@ import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import { UserState } from './types';
 import useAppStore from '../app';
+import useNanoMQStore from '../nanomq';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
@@ -72,7 +73,9 @@ const useUserStore = defineStore('user', {
     },
     logoutCallBack() {
       const appStore = useAppStore();
+      const nanomqStore = useNanoMQStore();
       this.resetInfo();
+      nanomqStore.reset();
       clearToken();
       removeRouteListener();
       appStore.clearServerMenu();

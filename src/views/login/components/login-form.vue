@@ -1,7 +1,7 @@
 <template>
   <div class="login-form-wrapper">
     <div class="login-form-title">{{ $t('login.form.title') }}</div>
-    <div class="login-form-sub-title">{{ $t('login.form.title') }}</div>
+    <div class="login-form-sub-title">{{ $t('login.form.subTitle') }}</div>
     <div class="login-form-error-msg">{{ errorMessage }}</div>
     <a-form
       ref="loginForm"
@@ -10,6 +10,22 @@
       layout="vertical"
       @submit="handleSubmit"
     >
+      <a-form-item
+        field="baseURL"
+        :rules="[{ required: true, message: $t('login.form.baseURL.errMsg') }]"
+        :validate-trigger="['change', 'blur']"
+        hide-label
+      >
+        <a-input
+          v-model="userInfo.baseURL"
+          :placeholder="$t('login.form.baseURL.placeholder')"
+          allow-clear
+        >
+          <template #prefix>
+            <icon-link />
+          </template>
+        </a-input>
+      </a-form-item>
       <a-form-item
         field="username"
         :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
@@ -44,19 +60,14 @@
       <a-space :size="16" direction="vertical">
         <div class="login-form-password-actions">
           <a-checkbox
-            checked="rememberPassword"
             :model-value="loginConfig.rememberPassword"
-            @change="setRememberPassword as any"
+            @change="setRememberPassword"
           >
             {{ $t('login.form.rememberPassword') }}
           </a-checkbox>
-          <a-link>{{ $t('login.form.forgetPassword') }}</a-link>
         </div>
         <a-button type="primary" html-type="submit" long :loading="loading">
           {{ $t('login.form.login') }}
-        </a-button>
-        <a-button type="text" long class="login-form-register-btn">
-          {{ $t('login.form.register') }}
         </a-button>
       </a-space>
     </a-form>
@@ -72,20 +83,23 @@
   import { useStorage } from '@vueuse/core';
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
-  import type { LoginData } from '@/api/user';
+  import { getDefaultNanoMQConfig, LoginData } from '@/api/user';
 
   const router = useRouter();
   const { t } = useI18n();
   const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
   const userStore = useUserStore();
+  const defaultConfig = getDefaultNanoMQConfig();
 
   const loginConfig = useStorage('login-config', {
     rememberPassword: true,
-    username: 'admin', // 演示默认值
-    password: 'admin', // demo default value
+    baseURL: defaultConfig.baseURL,
+    username: defaultConfig.username,
+    password: defaultConfig.password,
   });
   const userInfo = reactive({
+    baseURL: loginConfig.value.baseURL,
     username: loginConfig.value.username,
     password: loginConfig.value.password,
   });
@@ -95,25 +109,26 @@
     values,
   }: {
     errors: Record<string, ValidatedError> | undefined;
-    values: Record<string, any>;
+    values: Record<string, unknown>;
   }) => {
     if (loading.value) return;
     if (!errors) {
       setLoading(true);
       try {
-        await userStore.login(values as LoginData);
+        await userStore.login(values as unknown as LoginData);
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         router.push({
-          name: (redirect as string) || 'Workplace',
+          name: (redirect as string) || 'NanoMQDashboard',
           query: {
             ...othersQuery,
           },
         });
         Message.success(t('login.form.login.success'));
         const { rememberPassword } = loginConfig.value;
-        const { username, password } = values;
-        // 实际生产环境需要进行加密存储。
-        // The actual production environment requires encrypted storage.
+        const { baseURL, username, password } = values as unknown as LoginData;
+        loginConfig.value.baseURL = rememberPassword
+          ? baseURL
+          : defaultConfig.baseURL;
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
       } catch (err) {
@@ -123,8 +138,12 @@
       }
     }
   };
-  const setRememberPassword = (value: boolean) => {
-    loginConfig.value.rememberPassword = value;
+  const setRememberPassword = (
+    value: boolean | Array<string | number | boolean>
+  ) => {
+    if (typeof value === 'boolean') {
+      loginConfig.value.rememberPassword = value;
+    }
   };
 </script>
 

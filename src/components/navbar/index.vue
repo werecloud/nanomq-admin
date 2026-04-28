@@ -4,13 +4,13 @@
       <a-space>
         <img
           alt="logo"
-          src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image"
+          :src="logoUrl"
         />
         <a-typography-title
           :style="{ margin: 0, fontSize: '18px' }"
           :heading="5"
         >
-          Arco Pro
+          Werecloud ioT
         </a-typography-title>
         <icon-menu-fold
           v-if="!topMenu && appStore.device === 'mobile'"
@@ -23,7 +23,7 @@
       <Menu v-if="topMenu" />
     </div>
     <ul class="right-side">
-      <li>
+      <!-- <li>
         <a-tooltip :content="$t('settings.search')">
           <a-button class="nav-btn" type="outline" :shape="'circle'">
             <template #icon>
@@ -31,7 +31,7 @@
             </template>
           </a-button>
         </a-tooltip>
-      </li>
+      </li> -->
       <li>
         <a-tooltip :content="$t('settings.language')">
           <a-button
@@ -82,7 +82,7 @@
           </a-button>
         </a-tooltip>
       </li>
-      <li>
+      <!-- <li>
         <a-tooltip :content="$t('settings.navbar.alerts')">
           <div class="message-box-trigger">
             <a-badge :count="9" dot>
@@ -108,7 +108,7 @@
             <message-box />
           </template>
         </a-popover>
-      </li>
+      </li> -->
       <li>
         <a-tooltip
           :content="
@@ -153,7 +153,7 @@
             <img alt="avatar" :src="avatar" />
           </a-avatar>
           <template #content>
-            <a-doption>
+            <!-- <a-doption>
               <a-space @click="switchRoles">
                 <icon-tag />
                 <span>
@@ -176,12 +176,12 @@
                   {{ $t('messageBox.userSettings') }}
                 </span>
               </a-space>
-            </a-doption>
+            </a-doption> -->
             <a-doption>
               <a-space @click="handleLogout">
                 <icon-export />
                 <span>
-                  {{ $t('messageBox.logout') }}
+                  {{ $t('navbar.logout') }}
                 </span>
               </a-space>
             </a-doption>
@@ -194,14 +194,15 @@
 
 <script lang="ts" setup>
   import { computed, ref, inject } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  // import { Message } from '@arco-design/web-vue';
   import { useDark, useToggle, useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/hooks/locale';
   import useUser from '@/hooks/user';
   import Menu from '@/components/menu/index.vue';
-  import MessageBox from '../message-box/index.vue';
+  import logoUrl from '@/assets/logo.svg?url';
+  // import MessageBox from '../message-box/index.vue';
 
   const appStore = useAppStore();
   const userStore = useUserStore();
@@ -234,16 +235,16 @@
   const setVisible = () => {
     appStore.updateSettings({ globalSettings: true });
   };
-  const refBtn = ref();
+  // const refBtn = ref();
   const triggerBtn = ref();
-  const setPopoverVisible = () => {
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    refBtn.value.dispatchEvent(event);
-  };
+  // const setPopoverVisible = () => {
+  //   const event = new MouseEvent('click', {
+  //     view: window,
+  //     bubbles: true,
+  //     cancelable: true,
+  //   });
+  //   refBtn.value.dispatchEvent(event);
+  // };
   const handleLogout = () => {
     logout();
   };
@@ -255,10 +256,10 @@
     });
     triggerBtn.value.dispatchEvent(event);
   };
-  const switchRoles = async () => {
-    const res = await userStore.switchRoles();
-    Message.success(res as string);
-  };
+  // const switchRoles = async () => {
+  //   const res = await userStore.switchRoles();
+  //   Message.success(res as string);
+  // };
   const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
 </script>
 

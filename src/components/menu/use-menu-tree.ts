@@ -28,8 +28,25 @@ export default function useMenuTree() {
           return null;
         }
 
+        if (element.meta?.hideChildrenInMenu) {
+          const visibleChild = element.children?.find(
+            (x) => x.meta?.hideInMenu !== true
+          );
+          if (visibleChild) {
+            return {
+              ...visibleChild,
+              path: element.path,
+              meta: {
+                ...element.meta,
+                ...visibleChild.meta,
+              },
+              children: [],
+            };
+          }
+        }
+
         // leaf node
-        if (element.meta?.hideChildrenInMenu || !element.children) {
+        if (!element.children) {
           element.children = [];
           return element;
         }

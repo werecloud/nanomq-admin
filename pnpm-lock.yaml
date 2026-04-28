@@ -77,6 +77,9 @@ importers:
       '@types/mockjs':
         specifier: ^1.0.7
         version: 1.0.10
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
       '@types/nprogress':
         specifier: ^0.2.0
         version: 0.2.3
@@ -91,10 +94,10 @@ importers:
         version: 5.62.0(eslint@8.57.1)(typescript@4.9.5)
       '@vitejs/plugin-vue':
         specifier: ^3.1.2
-        version: 3.2.0(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))
+        version: 3.2.0(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))
       '@vitejs/plugin-vue-jsx':
         specifier: ^2.0.1
-        version: 2.1.1(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))
+        version: 2.1.1(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))
       '@vue/babel-plugin-jsx':
         specifier: ^1.1.1
         version: 1.5.0(@babel/core@7.29.0)
@@ -175,16 +178,16 @@ importers:
         version: 0.24.1(@babel/parser@7.29.2)(rollup@2.80.0)(vue@3.5.33(typescript@4.9.5))
       vite:
         specifier: ^3.2.5
-        version: 3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)
+        version: 3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)
       vite-plugin-compression:
         specifier: ^0.5.1
-        version: 0.5.1(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0))
+        version: 0.5.1(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0))
       vite-plugin-eslint:
         specifier: ^1.8.1
-        version: 1.8.1(eslint@8.57.1)(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0))
+        version: 1.8.1(eslint@8.57.1)(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0))
       vite-plugin-imagemin:
         specifier: ^0.6.1
-        version: 0.6.1(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0))
+        version: 0.6.1(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0))
       vite-svg-loader:
         specifier: ^3.6.0
         version: 3.6.0
@@ -5910,19 +5913,19 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vitejs/plugin-vue-jsx@2.1.1(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))':
+  '@vitejs/plugin-vue-jsx@2.1.1(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-typescript': 7.28.6(@babel/core@7.29.0)
       '@vue/babel-plugin-jsx': 1.5.0(@babel/core@7.29.0)
-      vite: 3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)
+      vite: 3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)
       vue: 3.5.33(typescript@4.9.5)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@3.2.0(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))':
+  '@vitejs/plugin-vue@3.2.0(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0))(vue@3.5.33(typescript@4.9.5))':
     dependencies:
-      vite: 3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)
+      vite: 3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)
       vue: 3.5.33(typescript@4.9.5)
 
   '@volar/language-core@1.11.1':
@@ -9191,7 +9194,7 @@ snapshots:
     dependencies:
       htmlparser2: 3.10.1
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-scss@2.1.1)(postcss@7.0.39)
 
   postcss-html@1.8.1:
     dependencies:
@@ -9204,7 +9207,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-scss@2.1.1)(postcss@7.0.39)
     transitivePeerDependencies:
       - supports-color
 
@@ -9215,7 +9218,7 @@ snapshots:
   postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39):
     dependencies:
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-scss@2.1.1)(postcss@7.0.39)
       remark: 10.0.1
       unist-util-find-all-after: 1.0.5
 
@@ -9267,7 +9270,7 @@ snapshots:
     dependencies:
       postcss: 8.5.12
 
-  postcss-syntax@0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39):
+  postcss-syntax@0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-scss@2.1.1)(postcss@7.0.39):
     dependencies:
       postcss: 7.0.39
     optionalDependencies:
@@ -10068,7 +10071,7 @@ snapshots:
       postcss-sass: 0.3.5
       postcss-scss: 2.1.1
       postcss-selector-parser: 3.1.2
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss-html@1.8.1)(postcss@8.5.12))(postcss@7.0.39))(postcss-scss@2.1.1)(postcss@7.0.39)
       postcss-value-parser: 3.3.1
       resolve-from: 4.0.0
       signal-exit: 3.0.7
@@ -10471,24 +10474,24 @@ snapshots:
       unist-util-stringify-position: 1.1.2
       vfile-message: 1.1.1
 
-  vite-plugin-compression@0.5.1(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)):
+  vite-plugin-compression@0.5.1(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)):
     dependencies:
       chalk: 4.1.2
       debug: 4.4.3
       fs-extra: 10.1.0
-      vite: 3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)
+      vite: 3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-eslint@1.8.1(eslint@8.57.1)(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)):
+  vite-plugin-eslint@1.8.1(eslint@8.57.1)(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       '@types/eslint': 8.56.12
       eslint: 8.57.1
       rollup: 2.80.0
-      vite: 3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)
+      vite: 3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)
 
-  vite-plugin-imagemin@0.6.1(vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)):
+  vite-plugin-imagemin@0.6.1(vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)):
     dependencies:
       '@types/imagemin': 7.0.1
       '@types/imagemin-gifsicle': 7.0.4
@@ -10513,7 +10516,7 @@ snapshots:
       imagemin-webp: 6.1.0
       jpegtran-bin: 6.0.1
       pathe: 0.2.0
-      vite: 3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0)
+      vite: 3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -10522,14 +10525,14 @@ snapshots:
       '@vue/compiler-sfc': 3.5.33
       svgo: 2.8.2
 
-  vite@3.2.11(@types/node@20.5.1)(less@4.6.4)(sugarss@2.0.0):
+  vite@3.2.11(@types/node@25.6.0)(less@4.6.4)(sugarss@2.0.0):
     dependencies:
       esbuild: 0.15.18
       postcss: 8.5.12
       resolve: 1.22.12
       rollup: 2.80.0
     optionalDependencies:
-      '@types/node': 20.5.1
+      '@types/node': 25.6.0
       fsevents: 2.3.3
       less: 4.6.4
       sugarss: 2.0.0
