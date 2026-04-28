@@ -149,7 +149,12 @@ class NanoMQAPI {
     });
 
     this.client.interceptors.request.use((config) => {
-      this.applyClientConfig();
+      const resolved = this.applyClientConfig();
+      config.baseURL = NanoMQAPI.createApiV4BaseURL(resolved.baseURL);
+      config.auth = {
+        username: resolved.username,
+        password: resolved.password,
+      };
       return config;
     });
   }
@@ -158,7 +163,7 @@ class NanoMQAPI {
     return `${normalizeNanoMQBaseURL(url)}/api/v4`;
   }
 
-  private applyClientConfig(config?: AuthConfig | null) {
+  private applyClientConfig(config?: AuthConfig | null): AuthConfig {
     const resolved = config || this.authConfig || getNanoMQAuthConfig();
     this.client.defaults.baseURL = NanoMQAPI.createApiV4BaseURL(
       resolved.baseURL
@@ -167,6 +172,7 @@ class NanoMQAPI {
       username: resolved.username,
       password: resolved.password,
     };
+    return resolved;
   }
 
   setAuthConfig(config: AuthConfig) {

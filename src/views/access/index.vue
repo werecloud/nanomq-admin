@@ -7,7 +7,7 @@
           type="primary"
           :loading="isLoading"
           :disabled="isSaving"
-          @click="loadFromBroker"
+          @click="loadFromBroker(true)"
         >
           <template #icon><icon-refresh /></template>
           {{ t('nanomq.access.readBroker') }}
@@ -243,7 +243,7 @@
     });
   };
 
-  const loadFromBroker = async () => {
+  const loadFromBroker = async (showSuccess = false) => {
     isLoading.value = true;
     error.value = null;
     try {
@@ -261,7 +261,7 @@
       aclRows.value = rules.length
         ? rules.map((rule) => ({ ...rule, rowKey: uniqueId() }))
         : [{ rowKey: uniqueId(), permit: 'allow' }];
-      Message.success(t('nanomq.common.success'));
+      if (showSuccess) Message.success(t('nanomq.common.success'));
     } catch (e) {
       error.value = errorMessage(e, '读取访问控制配置失败');
     } finally {
@@ -405,5 +405,5 @@
     });
   };
 
-  onMounted(loadFromBroker);
+  onMounted(() => loadFromBroker());
 </script>
